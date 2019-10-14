@@ -1,14 +1,24 @@
-import React from 'react';
+import React, { Component } from 'react';
 
-import './Post.css';
+const asyncComponent = (importComponent) => {
+	return class extends Component{
+		state = {
+			component: null
+		};
 
-const post = (props) => (
-    <article className="Post" onClick={props.clicked}>
-        <h1>{props.title}</h1>
-        <div className="Info">
-            <div className="Author">{props.author}</div>
-        </div>
-    </article>
-);
+        componentDidMount() {
+            importComponent()
+                .then(cmp => {
+                    this.setState({component: cmp.default})
+                });
+        }
 
-export default post;
+		render() {
+            const C = this.state.component;
+
+            return C ? <C {...this.props} /> : null; 
+        };
+	};	
+}
+
+export default asyncComponent;
